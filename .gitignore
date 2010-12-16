@@ -1,0 +1,16 @@
+# MacOS directory info
+.DS_Store
+._*
+
+# swapfiles
+*~
+*.swp
+
+# old versions
+*.old
+
+# compiled Python files
+*.py[co]
+
+# SQLite databases
+*.sqlite

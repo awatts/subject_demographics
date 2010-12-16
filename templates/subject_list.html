@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+    <head>
+        <title>Subject List</title>
+        <meta http-equiv="Content-Type" content="text/html; CHARSET=utf-8"/>
+        <meta http-equiv="content-language" content="en"/>
+        <meta name="copyright" content="2010 HLP Lab - BCS Dept - University of Rochester"/>
+        <style type="text/css" media="all">
+            @import "/default.css";
+            @import "/entry.css";
+            @import "/tabletheme/style.css";
+        </style>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+        <script type="text/javascript" src="/jquery.tablesorter.min.js"></script>
+        <script type="text/javascript" src="/subject_list.js"></script>
+    </head>
+
+    <body>
+        <div id="container">
+            <div id="content">
+                <table id="subjects" class="tablesorter">
+                    <thead>
+                        <tr>
+                            <th>Entry date</th>
+                            <th>Last name</th>
+                            <th>First name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Age</th>
+                            <th>Sex</th>
+                            <th>Ethnicity</th>
+                            <th>American Indian</th>
+                            <th>Black/African American</th>
+                            <th>Hawaiian/Pacific Islander</th>
+                            <th>Asian</th>
+                            <th>White</th>
+                            <th>Unknown</th>
+                            <th>Other Race</th>
+                            <th>UR Student</th>
+                            <th>Grad Year</th>
+                            <th>Normal Hearing</th>
+                            <th>Hearing Problems</th>
+                            <th>Vision Normal</th>
+                            <th>Vision Other</th>
+                            <th>More Experiments?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in subjects %}
+                        <tr>
+                            <td>{{s.entrydate}}</td>
+                            <td>{{s.lastname}}</td>
+                            <td>{{s.firstname}}</td>
+                            <td>TBI</td>
+                            <td>TBI</td>
+                            <td>{{s.age}}</td>
+                            <td>{{s.sex}}</td>
+                            <td>{{s.ethnicity}}</td>
+                            <td>{{s.amerind}}</td>
+                            <td>{{s.afram}}</td>
+                            <td>{{s.pacif}}</td>
+                            <td>{{s.asian}}</td>
+                            <td>{{s.white}}</td>
+                            <td>{{s.other_race}}</td>
+                            <td>{{s.ur_student}}</td>
+                            <td>{{s.gradyear}}</td>
+                            <td>{{s.hearing_normal}}</td>
+                            <td>{{s.hearing_problems}}</td>
+                            <td>{{s.vision_normal}}</td>
+                            <td>{{s.vision_other}}</td>
+                            <td>{{s.more_expts}}</td>
+                        </tr>
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
