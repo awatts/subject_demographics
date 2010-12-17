@@ -20,8 +20,12 @@
 
 from elixir import *
 from datetime import date
+from ConfigParser import SafeConfigParser
 
-metadata.bind = "sqlite:///subjects.sqlite"
+cfg = SafeConfigParser()
+cfg.read('db.cfg')
+
+metadata.bind = cfg.get('Database', 'uri')
 
 __all__ = ["Subject", "Phone", "Email"]
 

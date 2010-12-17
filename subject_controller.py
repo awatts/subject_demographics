@@ -21,11 +21,15 @@
 from webob import Request, Response
 from webob.exc import HTTPBadRequest
 from sqlalchemy.orm.exc import NoResultFound
-from elixir import *
+from elixir import metadata, setup_all
 from jinja2 import Environment, FileSystemLoader
 from subject_models import Subject, Phone, Email
+from ConfigParser import SafeConfigParser
 
-metadata.bind = "sqlite:///subjects.sqlite"
+cfg = SafeConfigParser()
+cfg.read('db.cfg')
+
+metadata.bind = cfg.get('Database', 'uri')
 setup_all()
 
 class NewSubjectController(object):
@@ -40,7 +44,7 @@ class NewSubjectController(object):
             resp = HTTPBadRequest('This page can only be accesses via POST')
             return resp(environ, start_response)
         else:
-            env = Environment(loader=FileSystemLoader('.'))
+            env = Environment(loader=FileSystemLoader('templates/'))
             template = env.get_template('foo.html')
             template = template.render() #TODO: fill in vars for render
 
@@ -57,10 +61,13 @@ class SubjectListController(object):
     def __call__(self, environ, start_response):
         req = Request(environ)
 
+        # TODO: have a GET parameter to restrict what rows to fetch
+        # and use Subject.query.filter_by if that param exists
+
         subs = Subject.query.all()
         subjects = [s.to_dict() for s in subs]
 
-        env = Environment(loader=FileSystemLoader('.'))
+        env = Environment(loader=FileSystemLoader('templates/'))
         template = env.get_template('subject_list.html')
         template = template.render(subjects=subjects)
 
@@ -70,9 +77,14 @@ class SubjectListController(object):
         return resp(environ, start_response)
 
 if __name__ == '__main__':
-    from paste import httpserver
-    from paste.urlparser import StaticURLParser
+    import os
+    from paste import httpserver, fileapp, urlmap
 
-    app = StaticURLParser('/')
-    app = SubjectListController(app)
+    app = urlmap.URLMap()
+    app['/media'] = fileapp.DirectoryApp(os.path.join(os.path.dirname(
+        os.path.dirname(__file__)), 'media'))
+    app['/tabletheme'] = fileapp.DirectoryApp(os.path.join(os.path.dirname(
+        os.path.dirname(__file__)), 'tabletheme'))
+    app['/list'] = SubjectListController(app)
+    app['/new'] = NewSubjectController(app)
     httpserver.serve(app, host='127.0.0.1', port=8080)
