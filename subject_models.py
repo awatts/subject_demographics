@@ -22,12 +22,12 @@ from elixir import *
 from datetime import date
 from ConfigParser import SafeConfigParser
 
+__all__ = ["Subject", "Phone", "Email"]
+
 cfg = SafeConfigParser()
 cfg.read('db.cfg')
 
 metadata.bind = cfg.get('Database', 'uri')
-
-__all__ = ["Subject", "Phone", "Email"]
 
 class Subject(Entity):
     entrydate = Field(Date(default = date.today))

@@ -21,7 +21,7 @@
 from webob import Request, Response
 from webob.exc import HTTPBadRequest
 from sqlalchemy.orm.exc import NoResultFound
-from elixir import metadata, setup_all
+from elixir import metadata, setup_all, session
 from jinja2 import Environment, FileSystemLoader
 from subject_models import Subject, Phone, Email
 from ConfigParser import SafeConfigParser
@@ -65,7 +65,7 @@ class SubjectListController(object):
         # and use Subject.query.filter_by if that param exists
 
         subs = Subject.query.all()
-        subjects = [s.to_dict() for s in subs]
+        subjects = [s.to_dict(deep={'phone': {}, 'email': {}}) for s in subs]
 
         env = Environment(loader=FileSystemLoader('templates/'))
         template = env.get_template('subject_list.html')
@@ -87,4 +87,5 @@ if __name__ == '__main__':
         os.path.dirname(__file__)), 'tabletheme'))
     app['/list'] = SubjectListController(app)
     app['/new'] = NewSubjectController(app)
+    app['/add'] = fileapp.FileApp('templates/entryform.html')
     httpserver.serve(app, host='127.0.0.1', port=8080)

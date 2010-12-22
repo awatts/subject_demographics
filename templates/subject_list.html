@@ -55,8 +55,16 @@
                             <td>{{s.entrydate}}</td>
                             <td>{{s.lastname}}</td>
                             <td>{{s.firstname}}</td>
-                            <td>TBI</td>
-                            <td>TBI</td>
+                            <td>
+                                {% for p in s.phone %}
+                                {{p.number}}{% if not loop.last %},{% endif %}
+                                {% endfor%}
+                            </td>
+                            <td>
+                                {% for e in s.email %}
+                                {{e.address}}{% if not loop.last %},{% endif %}
+                                {% endfor%}
+                            </td>
                             <td>{{s.age}}</td>
                             <td>{{s.sex}}</td>
                             <td>{{s.ethnicity}}</td>
