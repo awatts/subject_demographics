@@ -44,14 +44,47 @@ class NewSubjectController(object):
             resp = HTTPBadRequest('This page can only be accesses via POST')
             return resp(environ, start_response)
         else:
-            env = Environment(loader=FileSystemLoader('templates/'))
-            template = env.get_template('foo.html')
-            template = template.render() #TODO: fill in vars for render
+            firstname = req.POST['firstname']
+            lastname = req.POST['lastname']
+            s = Subject(firstname=firstname, lastname=lastname)
 
-            resp = Response()
-            resp.content_type='application/xhtml+xml'
-            resp.unicode_body = template
-            return resp(environ, start_response)
+            to_add = {}
+            for k in ('amerind', 'afram', 'pacif', 'asian', 'white',
+                      'unknown', 'ur_student', 'hearing_normal', 'more_expts'):
+                if req.POST.has_key(k):
+                    to_add[k] = True
+
+            for k in ('sex', 'ethnicity', 'other_race', 'gradyear',
+                      'hearing_problems', 'vision_normal', 'vision_other'):
+                if req.POST.has_key(k):
+                    to_add[k] = req.POST[k]
+
+            if req.POST.has_key('age'):
+                to_add['age'] = int(req.POST['age'])
+
+            s.from_dict(to_add)
+            session.commit()
+
+            if req.POST.has_key('phone'):
+                p = Phone(subject = s, number = req.POST['phone'])
+            session.commit()
+
+            if req.POST.has_key('email'):
+                em = Email(subject = s, address = req.POST['email'])
+            session.commit()
+
+            from pprint import pformat
+            output = pformat(s.to_dict(deep={'phone': {}, 'email': {}}))
+            start_response('200 OK', [('Content-type', 'text/plain')])
+            return output
+            #env = Environment(loader=FileSystemLoader('templates/'))
+            #template = env.get_template('foo.html')
+            #template = template.render() #TODO: fill in vars for render
+
+            #resp = Response()
+            #resp.content_type='application/xhtml+xml'
+            #resp.unicode_body = template
+            #return resp(environ, start_response)
 
 class SubjectListController(object):
 
