@@ -75,16 +75,16 @@ class NewSubjectController(object):
 
             from pprint import pformat
             output = pformat(s.to_dict(deep={'phone': {}, 'email': {}}))
-            start_response('200 OK', [('Content-type', 'text/plain')])
-            return output
             #env = Environment(loader=FileSystemLoader('templates/'))
             #template = env.get_template('foo.html')
             #template = template.render() #TODO: fill in vars for render
 
-            #resp = Response()
+            resp = Response()
             #resp.content_type='application/xhtml+xml'
             #resp.unicode_body = template
-            #return resp(environ, start_response)
+            resp.content_type='text/plain'
+            resp.body = output
+            return resp(environ, start_response)
 
 class SubjectListController(object):
 
@@ -109,6 +109,37 @@ class SubjectListController(object):
         resp.unicode_body = template
         return resp(environ, start_response)
 
+class SummaryController(object):
+
+    def __init__(self, app=None): # this way if running standalone, gets app, else doesn't need it
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        req = Request(environ)
+
+        summary = {}
+        summary['full_count'] = Subject.query.filter(None).count()
+        summary['male'] = Subject.query.filter(Subject.sex == u'Male').count()
+        summary['female'] = Subject.query.filter(Subject.sex == u'Female').count()
+        summary['amerind'] = Subject.query.filter(Subject.amerind == True).count()
+        summary['afram'] = Subject.query.filter(Subject.afram == True).count()
+        summary['pacif'] = Subject.query.filter(Subject.pacif == True).count()
+        summary['asian'] = Subject.query.filter(Subject.asian == True).count()
+        summary['white'] = Subject.query.filter(Subject.white == True).count()
+        summary['unknown']  = Subject.query.filter(Subject.unknown == True).count()
+        summary['hisp'] = Subject.query.filter(Subject.ethnicity == u'Hispanic or Latino').count()
+        summary['nonhisp'] = Subject.query.filter(Subject.ethnicity == u'Not Hispanic or Latino').count()
+
+        env = Environment(loader=FileSystemLoader('templates/'))
+        template = env.get_template('subject_summary.html')
+        template = template.render(summary=summary) #TODO: fill in params
+
+        resp = Response()
+        resp.content_type='application/xhtml+xml'
+        resp.unicode_body = template
+        return resp(environ, start_response)
+
+
 if __name__ == '__main__':
     import os
     from paste import httpserver, fileapp, urlmap
@@ -119,6 +150,7 @@ if __name__ == '__main__':
     app['/tabletheme'] = fileapp.DirectoryApp(os.path.join(os.path.dirname(
         os.path.dirname(__file__)), 'tabletheme'))
     app['/list'] = SubjectListController(app)
+    app['/summary'] = SummaryController(app)
     app['/new'] = NewSubjectController(app)
     app['/add'] = fileapp.FileApp('templates/entryform.html')
     httpserver.serve(app, host='127.0.0.1', port=8080)
