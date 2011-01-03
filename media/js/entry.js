@@ -4,6 +4,13 @@ $(document).ready(function() {
 
     $("#ur_student").click(function() {$("#gradyear").toggle();});
     $("#hearing_normal").click(function() {$("#hearing_problems").toggle();});
+    $("#vision_normal").change(function() {
+        if ($(this).val() === "Other") {
+            $("#vision_other").slideDown();
+        } else {
+            $("#vision_other").slideUp();
+        }
+    });
 
     if ($(':input#entrydate').val() === "") {
         var today = new Date();
