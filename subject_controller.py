@@ -58,14 +58,14 @@ class NewSubjectController(object):
             for k in ('sex', 'ethnicity', 'other_race', 'gradyear',
                       'hearing_problems', 'vision_normal', 'vision_other'):
                 if req.POST.has_key(k):
-                    if req.POST[k] not in (None, ''):
+                    if req.POST[k] not in (None, '', u''):
                         to_add[k] = req.POST[k]
 
             if req.POST.has_key('age'):
                 if req.POST['age'] not in (None, ''):
                     to_add['age'] = int(req.POST['age'])
 
-            if req.POST['entrydate'] is not None:
+            if req.POST['entrydate'] not in (None, '', u''):
                 to_add['entrydate'] = req.POST['entrydate']
             else:
                 to_add['entrydate'] = date.today()
@@ -74,11 +74,13 @@ class NewSubjectController(object):
             session.commit()
 
             if req.POST.has_key('phone'):
-                p = Phone(subject = s, number = req.POST['phone'])
+                if req.POST['phone'] not in (None, '', u''):
+                    p = Phone(subject = s, number = req.POST['phone'])
             session.commit()
 
             if req.POST.has_key('email'):
-                em = Email(subject = s, address = req.POST['email'])
+                if req.POST['email'] not in (None, '', u''):
+                    em = Email(subject = s, address = req.POST['email'])
             session.commit()
 
             from pprint import pformat
