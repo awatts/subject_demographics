@@ -25,6 +25,7 @@ from elixir import metadata, setup_all, session
 from jinja2 import Environment, FileSystemLoader
 from subject_models import Subject, Phone, Email
 from ConfigParser import SafeConfigParser
+from datetime import date
 
 cfg = SafeConfigParser()
 cfg.read('db.cfg')
@@ -57,10 +58,17 @@ class NewSubjectController(object):
             for k in ('sex', 'ethnicity', 'other_race', 'gradyear',
                       'hearing_problems', 'vision_normal', 'vision_other'):
                 if req.POST.has_key(k):
-                    to_add[k] = req.POST[k]
+                    if req.POST[k] not in (None, ''):
+                        to_add[k] = req.POST[k]
 
             if req.POST.has_key('age'):
-                to_add['age'] = int(req.POST['age'])
+                if req.POST['age'] not in (None, ''):
+                    to_add['age'] = int(req.POST['age'])
+
+            if req.POST['entrydate'] is not None:
+                to_add['entrydate'] = req.POST['entrydate']
+            else:
+                to_add['entrydate'] = date.today()
 
             s.from_dict(to_add)
             session.commit()

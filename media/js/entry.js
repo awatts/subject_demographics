@@ -9,7 +9,6 @@ $(document).ready(function() {
         var today = new Date();
         var year = today.getFullYear();
         var month = today.getMonth() + 1;
-        var day = today.getDate();
-        $(':input#entrydate').val(year + "-" + month + "-" + day);
+        $(':input#entrydate').datepicker({ dateFormat: 'yy-mm-dd', defaultDate: new Date() });
     }
 });

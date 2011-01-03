@@ -11,8 +11,10 @@
         <meta name="copyright" content="2010 HLP Lab - BCS Dept - University of Rochester"/>
         <style type="text/css" media="all">
             @import "/media/css/entry.css";
+            @import url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css);
         </style>
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
         <script type="text/javascript" src="/media/js/entry.js"></script>
     </head>
 
@@ -23,6 +25,7 @@
                     <div id="basicinfo" class="section">
                         <h3>Basic Information</h3>
                         <ul>
+                            <li>Entry date: <input type="text" name="entrydate" id="entrydate"/></li>
                             <li>First name: <input type="text" name="firstname" id="firstname" />
                             Last name: <input type="text" name="lastname" id="lastname" /></li>
                             <li>Phone: <input type="text" name="phone" id="phone" /></li>
@@ -30,9 +33,8 @@
                             <li>Age: <input type="text" name="age" id="age" /></li>
                             <li>Sex:
                                 <input type="radio" name="sex" id="male" value="Male"/>Male
-                                <input type="radio" name="sex" id="female" value="Male"/>Female
+                                <input type="radio" name="sex" id="female" value="Female"/>Female
                             </li>
-                            <li>Entry date: <input type="text" name="entrydate" id="entrydate"/></li>
                         </ul>
                     </div>
                     <div id="ethnicity" class="section">
