@@ -85,18 +85,18 @@ class NewSubjectController(object):
 
             if req.POST.has_key('phone'):
                 if req.POST['phone'] not in (None, '', u''):
-                    p = Phone(subject = s, number = req.POST['phone'])
+                    p = Phone(subject = subj, number = req.POST['phone'])
                     session.add(p)
                     session.commit()
 
             if req.POST.has_key('email'):
                 if req.POST['email'] not in (None, '', u''):
-                    em = Email(subject = s, address = req.POST['email'])
+                    em = Email(subject = subj, address = req.POST['email'])
                     session.add(em)
                     session.commit()
 
             from pprint import pformat
-            output = pformat(s.to_dict(deep={'phone': {}, 'email': {}}))
+            output = pformat(subj.to_dict(deep={'phone': {}, 'email': {}}))
             #env = Environment(loader=FileSystemLoader('templates/'))
             #template = env.get_template('foo.html')
             #template = template.render() #TODO: fill in vars for render
