@@ -18,54 +18,82 @@
 #    along with this program.
 #    If not, see <http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>.
 
-from elixir import *
 from datetime import date
 from ConfigParser import SafeConfigParser
+from sqlalchemy import Column, Integer, String, Unicode, Text, Date, Enum, Boolean, ForeignKey
+from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 __all__ = ["Subject", "Phone", "Email"]
 
-cfg = SafeConfigParser()
-cfg.read('db.cfg')
+Base = declarative_base()
 
-metadata.bind = cfg.get('Database', 'uri')
+def from_dict(self, values):
+    """Merge in items in the values dict into our object if it's one
+    of our columns"""
+    # from http://blog.mitechie.com/2010/04/03/a-follow-up-more-dict-to-sqlalchemy-fun/
 
-class Subject(Entity):
-    entrydate = Field(Date(default = date.today))
-    lastname = Field(Unicode(64), primary_key = True)
-    firstname = Field(Unicode(64), primary_key = True)
-    phone = OneToMany('Phone')
-    email = OneToMany('Email')
-    age = Field(Integer())
-    sex = Field(Enum(u'Male', u'Female'))
-    ethnicity = Field(Enum(u'Hispanic or Latino', u'Not Hispanic or Latino'))
-    amerind = Field(Boolean, default=False) # Ameican Indian
-    afram = Field(Boolean, default=False) # African Ameican or Black
-    pacif = Field(Boolean, default=False) # Pacific Islander or Native Hawaiian
-    asian = Field(Boolean, default=False) # Asian
-    white = Field(Boolean, default=False) # White
-    unknown = Field(Boolean, default=False) # Unknown race
-    other_race = Field(Unicode(32)) # Any other race specified
-    ur_student = Field(Boolean, default=False) # Current UR student?
-    gradyear = Field(Integer()) # year they will graduate
-    hearing_normal = Field(Boolean, default=True)
-    hearing_problems = Field(Text())
-    vision_normal = Field(Enum(u'Normal uncorrected', u'Corrected-to-normal with glasses', u'Corrected-to-normal with soft contacts', u'Corrected-to-normal with hard contacts',u'Other'))
-    vision_other = Field(Text()) # if vision_normal is 'Other', then what?
-    more_expts = Field(Boolean, default=False)
+    for c in self.__table__.columns:
+        if c.name in values:
+            setattr(self, c.name, values[c.name])
+
+Base.from_dict = from_dict
+
+class MyMixin(object):
+
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
+
+    id =  Column(Integer, primary_key=True)
+
+class Subject(Base, MyMixin):
+
+    __tablename__ = 'subject'
+
+    __table_args__ = (UniqueConstraint('firstname', 'lastname', name='name_constraint'), MyMixin.__table_args__)
+
+    entrydate = Column(Date(default = date.today))
+    lastname = Column(Unicode(64) )
+    firstname = Column(Unicode(64))
+    phone_id = Column(Integer, ForeignKey('phone.id'))
+    phone = relationship('Phone', backref='subject')
+    email_id = Column(Integer, ForeignKey('email.id'))
+    email = relationship('Email', backref='subject')
+    age = Column(Integer())
+    sex = Column(Enum(u'Male', u'Female'))
+    ethnicity = Column(Enum(u'Hispanic or Latino', u'Not Hispanic or Latino'))
+    amerind = Column(Boolean, default=False) # Ameican Indian
+    afram = Column(Boolean, default=False) # African Ameican or Black
+    pacif = Column(Boolean, default=False) # Pacific Islander or Native Hawaiian
+    asian = Column(Boolean, default=False) # Asian
+    white = Column(Boolean, default=False) # White
+    unknown = Column(Boolean, default=False) # Unknown race
+    other_race = Column(Unicode(32)) # Any other race specified
+    ur_student = Column(Boolean, default=False) # Current UR student?
+    gradyear = Column(Integer()) # year they will graduate
+    hearing_normal = Column(Boolean, default=True)
+    hearing_problems = Column(Text())
+    vision_normal = Column(Enum(u'Normal uncorrected', u'Corrected-to-normal with glasses', u'Corrected-to-normal with soft contacts', u'Corrected-to-normal with hard contacts',u'Other'))
+    vision_other = Column(Text()) # if vision_normal is 'Other', then what?
+    more_expts = Column(Boolean, default=False)
 
     def __repr__(self):
         return '<Subject: %s, %s>' % (self.lastname, self.firstname)
 
-class Phone(Entity):
-    subject = ManyToOne('Subject')
-    number = Field(Unicode(24))
+class Phone(Base, MyMixin):
+
+    __tablename__ = 'phone'
+
+    number = Column(Unicode(24))
 
     def __repr__(self):
         return '<Phone: %s>' % (self.number)
 
-class Email(Entity):
-    subject = ManyToOne('Subject')
-    address = Field(Unicode(128))
+class Email(Base, MyMixin):
+
+    __tablename__ = 'email'
+
+    address = Column(Unicode(128))
 
     def __repr__(self):
         return '<Email: %s>' % (self.address)

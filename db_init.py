@@ -18,9 +18,23 @@
 #    along with this program.
 #    If not, see <http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>.
 
-from subject_models import *
+from subject_models import Subject, Phone, Email
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+import ConfigParser
 
-# boilerplate Elixir code to create DB objects
-setup_all(create_tables=True)
+cfg = ConfigParser.SafeConfigParser()
+cfg.read('db.cfg')
+
+engine_string = cfg.get('db', 'engine_string')
+
+engine = create_engine(engine_string)
+Session = sessionmaker(bind=engine)
+
+session = Session()
+
+Subject.metadata.create_all(engine)
+Phone.metadata.create_all(engine)
+Email.metadata.create_all(engine)
 
 session.commit()

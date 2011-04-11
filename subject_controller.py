@@ -20,18 +20,21 @@
 
 from webob import Request, Response
 from webob.exc import HTTPBadRequest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
-from elixir import metadata, setup_all, session
 from jinja2 import Environment, FileSystemLoader
 from subject_models import Subject, Phone, Email
 from ConfigParser import SafeConfigParser
 from datetime import date
+from dateutil import parser
+import os.path
+
+basepath = os.path.dirname(__file__)
 
 cfg = SafeConfigParser()
-cfg.read('db.cfg')
-
-metadata.bind = cfg.get('Database', 'uri')
-setup_all()
+cfg.read(os.path.join(basepath, 'db.cfg'))
+engine_string = cfg.get('db', 'engine_string')
 
 class NewSubjectController(object):
 
@@ -39,6 +42,12 @@ class NewSubjectController(object):
         self.app = app
 
     def __call__(self, environ, start_response):
+    
+        # SQLAlchemy boilerplate code to connect to db and connect models to db objects
+        engine = create_engine(engine_string)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
         req = Request(environ)
 
         if req.method != 'POST':
@@ -47,7 +56,7 @@ class NewSubjectController(object):
         else:
             firstname = req.POST['firstname']
             lastname = req.POST['lastname']
-            s = Subject(firstname=firstname, lastname=lastname)
+            subj = Subject(firstname=firstname, lastname=lastname)
 
             to_add = {}
             for k in ('amerind', 'afram', 'pacif', 'asian', 'white',
@@ -66,22 +75,25 @@ class NewSubjectController(object):
                     to_add['age'] = int(req.POST['age'])
 
             if req.POST['entrydate'] not in (None, '', u''):
-                to_add['entrydate'] = req.POST['entrydate']
+                to_add['entrydate'] = parser.parse(req.POST['entrydate']).date()
             else:
                 to_add['entrydate'] = date.today()
 
-            s.from_dict(to_add)
+            subj.from_dict(to_add)
+            session.add(subj)
             session.commit()
 
             if req.POST.has_key('phone'):
                 if req.POST['phone'] not in (None, '', u''):
                     p = Phone(subject = s, number = req.POST['phone'])
-            session.commit()
+                    session.add(p)
+                    session.commit()
 
             if req.POST.has_key('email'):
                 if req.POST['email'] not in (None, '', u''):
                     em = Email(subject = s, address = req.POST['email'])
-            session.commit()
+                    session.add(em)
+                    session.commit()
 
             from pprint import pformat
             output = pformat(s.to_dict(deep={'phone': {}, 'email': {}}))
@@ -102,15 +114,21 @@ class SubjectListController(object):
         self.app = app
 
     def __call__(self, environ, start_response):
+
+        # SQLAlchemy boilerplate code to connect to db and connect models to db objects
+        engine = create_engine(engine_string)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
         req = Request(environ)
 
         # TODO: have a GET parameter to restrict what rows to fetch
-        # and use Subject.query.filter_by if that param exists
+        # and use session.query(Subject).filter_by if that param exists
 
-        subs = Subject.query.all()
+        subs = session.query(Subject).all()
         subjects = [s.to_dict(deep={'phone': {}, 'email': {}}) for s in subs]
 
-        env = Environment(loader=FileSystemLoader('templates/'))
+        env = Environment(loader=FileSystemLoader(os.path.join(basepath,'templates')))
         template = env.get_template('subject_list.html')
         template = template.render(subjects=subjects)
 
@@ -125,22 +143,28 @@ class SummaryController(object):
         self.app = app
 
     def __call__(self, environ, start_response):
+
+        # SQLAlchemy boilerplate code to connect to db and connect models to db objects
+        engine = create_engine(engine_string)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
         req = Request(environ)
 
         summary = {}
-        summary['full_count'] = Subject.query.filter(None).count()
-        summary['male'] = Subject.query.filter(Subject.sex == u'Male').count()
-        summary['female'] = Subject.query.filter(Subject.sex == u'Female').count()
-        summary['amerind'] = Subject.query.filter(Subject.amerind == True).count()
-        summary['afram'] = Subject.query.filter(Subject.afram == True).count()
-        summary['pacif'] = Subject.query.filter(Subject.pacif == True).count()
-        summary['asian'] = Subject.query.filter(Subject.asian == True).count()
-        summary['white'] = Subject.query.filter(Subject.white == True).count()
-        summary['unknown']  = Subject.query.filter(Subject.unknown == True).count()
-        summary['hisp'] = Subject.query.filter(Subject.ethnicity == u'Hispanic or Latino').count()
-        summary['nonhisp'] = Subject.query.filter(Subject.ethnicity == u'Not Hispanic or Latino').count()
+        summary['full_count'] = session.query(Subject).filter(None).count()
+        summary['male'] = session.query(Subject).filter(Subject.sex == u'Male').count()
+        summary['female'] = session.query(Subject).filter(Subject.sex == u'Female').count()
+        summary['amerind'] = session.query(Subject).filter(Subject.amerind == True).count()
+        summary['afram'] = session.query(Subject).filter(Subject.afram == True).count()
+        summary['pacif'] = session.query(Subject).filter(Subject.pacif == True).count()
+        summary['asian'] = session.query(Subject).filter(Subject.asian == True).count()
+        summary['white'] = session.query(Subject).filter(Subject.white == True).count()
+        summary['unknown']  = session.query(Subject).filter(Subject.unknown == True).count()
+        summary['hisp'] = session.query(Subject).filter(Subject.ethnicity == u'Hispanic or Latino').count()
+        summary['nonhisp'] = session.query(Subject).filter(Subject.ethnicity == u'Not Hispanic or Latino').count()
 
-        env = Environment(loader=FileSystemLoader('templates/'))
+        env = Environment(loader=FileSystemLoader(os.path.join(basepath,'templates')))
         template = env.get_template('subject_summary.html')
         template = template.render(summary=summary) #TODO: fill in params
 
@@ -161,6 +185,7 @@ if __name__ == '__main__':
         os.path.dirname(__file__)), 'tabletheme'))
     app['/list'] = SubjectListController(app)
     app['/summary'] = SummaryController(app)
+    app['/'] = SummaryController(app)
     app['/new'] = NewSubjectController(app)
     app['/add'] = fileapp.FileApp('templates/entryform.html')
     httpserver.serve(app, host='127.0.0.1', port=8080)
