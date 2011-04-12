@@ -96,16 +96,16 @@ class NewSubjectController(object):
                     session.commit()
 
             from pprint import pformat
-            output = pformat(subj.to_dict(deep={'phone': {}, 'email': {}}))
-            #env = Environment(loader=FileSystemLoader('templates/'))
-            #template = env.get_template('foo.html')
-            #template = template.render() #TODO: fill in vars for render
+            #output = pformat(subj.to_dict(deep={'phone': {}, 'email': {}}))
+            env = Environment(loader=FileSystemLoader(os.path.join(basepath,'templates')))
+            template = env.get_template('subject_list.html')
+            template = template.render(subjects = [subj.to_dict(deep={'phone': {}, 'email': {}}),])
 
             resp = Response()
-            #resp.content_type='application/xhtml+xml'
-            #resp.unicode_body = template
-            resp.content_type='text/plain'
-            resp.body = output
+            resp.content_type='application/xhtml+xml'
+            resp.unicode_body = template
+            #resp.content_type='text/plain'
+            #resp.body = output
             return resp(environ, start_response)
 
 class SubjectListController(object):
