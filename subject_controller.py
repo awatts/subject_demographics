@@ -102,7 +102,7 @@ class NewSubjectController(object):
             template = template.render(subjects = [subj.to_dict(deep={'phone': {}, 'email': {}}),])
 
             resp = Response()
-            resp.content_type='application/xhtml+xml'
+            resp.content_type='text/html'
             resp.unicode_body = template
             #resp.content_type='text/plain'
             #resp.body = output
@@ -125,7 +125,7 @@ class SubjectListController(object):
         # TODO: have a GET parameter to restrict what rows to fetch
         # and use session.query(Subject).filter_by if that param exists
 
-        subs = session.query(Subject).all()
+        subs = session.query(Subject).order_by(Subject.lastname).all()
         subjects = [s.to_dict(deep={'phone': {}, 'email': {}}) for s in subs]
 
         env = Environment(loader=FileSystemLoader(os.path.join(basepath,'templates')))
@@ -133,7 +133,7 @@ class SubjectListController(object):
         template = template.render(subjects=subjects)
 
         resp = Response()
-        resp.content_type='application/xhtml+xml'
+        resp.content_type='text/html'
         resp.unicode_body = template
         return resp(environ, start_response)
 
@@ -166,13 +166,54 @@ class SummaryController(object):
 
         env = Environment(loader=FileSystemLoader(os.path.join(basepath,'templates')))
         template = env.get_template('subject_summary.html')
-        template = template.render(summary=summary) #TODO: fill in params
+        template = template.render(summary=summary)
 
         resp = Response()
-        resp.content_type='application/xhtml+xml'
+        resp.content_type='text/html'
         resp.unicode_body = template
         return resp(environ, start_response)
 
+class AddSubjectController(object):
+    def __init__(self, app=None): # this way if running standalone, gets app, else doesn't need it
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        env = Environment(loader=FileSystemLoader(os.path.join(basepath,'templates')))
+        template = env.get_template('entryform.html')
+        template = template.render()
+
+        resp = Response()
+        resp.content_type='text/html'
+        resp.unicode_body = template
+        return resp(environ, start_response)
+
+
+
+#class SubjectCSVExport(object):
+#    
+#    def __init__(self, app=None): # this way if running standalone, gets app, else doesn't need it
+#        self.app = app
+#
+#    def __call__(self, environ, start_response):
+#
+#        # SQLAlchemy boilerplate code to connect to db and connect models to db objects
+#        engine = create_engine(engine_string)
+#        Session = sessionmaker(bind=engine)
+#        session = Session()
+#
+#        req = Request(environ)
+#
+#        # do something with DictWriter and a file content type
+#
+#        stup = [(s.lastname, s.firstname, "{0} {1}".format(s.firstname, s.lastname) ,s.entrydate.isoformat(), s.sex[0]) for s in subjects]
+#        colnames = ('Last Name', 'First Name', 'Name','Date First Run', 'Gender')
+#        [dict(zip(colnames, x)) for x in stup]
+#
+#        with open('subject_list.csv','w') as subl:
+#            dw = DictWriter(subl, fieldnames = colnames)
+#            dw.writerow(dict(zip(colnames, colnames)))
+#            for row in sdic:
+#                dw.writerow(row)
 
 if __name__ == '__main__':
     import os
@@ -187,5 +228,5 @@ if __name__ == '__main__':
     app['/summary'] = SummaryController(app)
     app['/'] = SummaryController(app)
     app['/new'] = NewSubjectController(app)
-    app['/add'] = fileapp.FileApp('templates/entryform.html')
+    app['/add'] = AddSubjectController(app)
     httpserver.serve(app, host='127.0.0.1', port=8080)

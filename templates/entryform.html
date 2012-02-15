@@ -1,81 +1,71 @@
-<?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% extends "base.html" %}
+{% block title %}New Subject{% endblock %}
+{% block extracss %}
+    <link rel="stylesheet" type="text/css" href="/media/css/entry.css"/>
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/redmond/jquery-ui.css"/>
+{% endblock %}
+{% block extrajs %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+    <script src="http://html5form.googlecode.com/svn/trunk/jquery.html5form-1.5-min.js"></script>
+    <script type="text/javascript" src="/media/js/entry.js"></script>
+{% endblock %}
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-
-    <head>
-        <title>New Subject</title>
-        <meta http-equiv="Content-Type" content="text/html; CHARSET=utf-8"/>
-        <meta http-equiv="content-language" content="en"/>
-        <meta name="copyright" content="2010 HLP Lab - BCS Dept - University of Rochester"/>
-        <style type="text/css" media="all">
-            @import "/media/css/entry.css";
-            @import url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css);
-        </style>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="/media/js/entry.js"></script>
-    </head>
-
-    <body>
-        <div id="container">
-            <div id="content">
+{% block content %}
                 <form id="newsubject" action="/new" method="post">
-                    <div id="basicinfo" class="section">
-                        <h3>Basic Information</h3>
+                    <fieldset id="basicinfo">
+                        <legend>Basic Information</legend>
                         <ul>
-                            <li>Entry date: <input type="text" name="entrydate" id="entrydate"/></li>
-                            <li>First name: <input type="text" name="firstname" id="firstname" />
-                            Last name: <input type="text" name="lastname" id="lastname" /></li>
-                            <li>Phone: <input type="text" name="phone" id="phone" /></li>
-                            <li>Email: <input type="text" name="email" id="email" /></li>
-                            <li>Age: <input type="text" name="age" id="age" /></li>
+                            <li>Entry date: <input type="date" name="entrydate" id="entrydate" title="Entry Date" autocomplete="off"/></li>
+                            <li>First name: <input type="text" name="firstname" id="firstname" title="First Name" placeholder="First Name" autocomplete="off" required/>
+                            Last name: <input type="text" name="lastname" id="lastname" title="Last Name" placeholder="Last Name" autocomplete="off" required /></li>
+                            <li>Phone: <input type="tel" name="phone" id="phone" title="Phone number" autocomplete="off" placeholder="555-123-4567"/></li>
+                            <li>Email: <input type="email" name="email" id="email" title="Email address" autocomplete="off" /></li>
+                            <li>Age: <input type="number" name="age" id="age" title="Age" autocomplete="off"/></li>
                             <li>Sex:
-                                <input type="radio" name="sex" id="male" value="Male"/>Male
-                                <input type="radio" name="sex" id="female" value="Female"/>Female
+                                <input type="radio" name="sex" id="male" title="Sex" value="Male"/>Male
+                                <input type="radio" name="sex" id="female" title="Sex" value="Female"/>Female
                             </li>
                         </ul>
-                    </div>
-                    <div id="ethnicity" class="section">
-                        <h3>Ethnicity and Race</h3>
+                    </fieldset>
+                    <fieldset id="ethnicity">
+                        <legend>Ethnicity and Race</legend>
                         <ul>
                             <li>Ethnicity:
-                                <input type="radio" name="ethnicity" id="hispanic" value="Hispanic or Latino"/>Hispanic or Latino
-                                <input type="radio" name="ethnicity" id="nonhispanic" value="Not Hispanic or Latino"/>Not Hispanic or Latino
+                                <input type="radio" name="ethnicity" id="hispanic" title="Ethnicity" value="Hispanic or Latino"/>Hispanic or Latino
+                                <input type="radio" name="ethnicity" id="nonhispanic" title="Ethnicity" value="Not Hispanic or Latino"/>Not Hispanic or Latino
                             </li>
                             <li>Race (you may check more than one)
                             <ul>
-                                <li><input type="checkbox" name="amerind" id="amerind"/>American Indian / Alaska Native</li>
-                                <li><input type="checkbox" name="afram" id="afram"/>Black or African-American</li>
-                                <li><input type="checkbox" name="pacif" id="pacif"/>Native Hawaiian or Other Pacific Islander</li>
-                                <li><input type="checkbox" name="asian" id="asian"/>Asian</li>
-                                <li><input type="checkbox" name="white" id="white"/>White</li>
-                                <li><input type="checkbox" name="unknown" id="unknown"/>Unknown</li>
-                                <li>Other:<input type="text" name="other_race" id="other_race"/></li>
+                                <li><input type="checkbox" name="amerind" title="Race" id="amerind"/>American Indian / Alaska Native</li>
+                                <li><input type="checkbox" name="afram" title="Race" id="afram"/>Black or African-American</li>
+                                <li><input type="checkbox" name="pacif" title="Race" id="pacif"/>Native Hawaiian or Other Pacific Islander</li>
+                                <li><input type="checkbox" name="asian" title="Race" id="asian"/>Asian</li>
+                                <li><input type="checkbox" name="white" title="Race" id="white"/>White</li>
+                                <li><input type="checkbox" name="unknown" title="Race" id="unknown"/>Unknown</li>
+                                <li>Other:<input type="text" name="other_race" title="Race" id="other_race"/></li>
                             </ul>
                             </li>
                         </ul>
-                    </div>
-                    <div id="student" class="section">
-                        <h3>Student Status</h3>
+                    </fieldset>
+                    <fieldset id="student">
+                        <legend>Student Status</legend>
                         <ul>
-                            <li>UR Student:<input type="checkbox" name="ur_student" id="ur_student"/></li>
-                            <li>If yes, expected graduation year: <input type="text" name="gradyear" id="gradyear"/></li>
+                            <li>UR Student:<input type="checkbox" name="ur_student" id="ur_student" title="UR Student"/></li>
+                            <li>If yes, expected graduation year: <input type="text" name="gradyear" id="gradyear" title="Expected graduation year" autocomplete="off"/></li>
                         </ul>
-                    </div>
-                    <div id="hearing" class="section">
-                        <h3>Hearing</h3>
+                    </fieldset>
+                    <fieldset id="hearing">
+                        <legend>Hearing</legend>
                         <ul>
-                            <li>Hearing normal?:<input type="checkbox" name="hearing_normal" id="hearing_normal"/></li>
-                            <li><label for="hearing_problems">If not, describe problems:</label><textarea rows="5" cols="40" name="hearing_problems" id="hearing_problems"></textarea></li>
+                            <li>Hearing normal?:<input type="checkbox" name="hearing_normal" id="hearing_normal" title="Hearing normal?" /></li>
+                            <li><label for="hearing_problems">If not, describe problems:</label><textarea rows="5" cols="40" name="hearing_problems" id="hearing_problems" title="Hearing problems"></textarea></li>
                         </ul>
-                    </div>
-                    <div id="vision" class="section">
-                        <h3>Vision</h3>
+                    </fieldset>
+                    <fieldset id="vision">
+                        <legend>Vision</legend>
                         <ul>
                             <li>Is your vision:
-                            <select name="vision_normal" id="vision_normal">
+                            <select name="vision_normal" id="vision_normal" title="Vision">
                                 <option value="Normal uncorrected">Normal uncorrected</option>
                                 <option value="Corrected-to-normal with glasses">Corrected-to-normal with glasses</option>
                                 <option value="Corrected-to-normal with soft contacts">Corrected-to-normal with soft contacts</option>
@@ -83,19 +73,16 @@
                                 <option value="Other">Other</option>
                             </select>
                             </li>
-                            <li><label for="vision_other">If Other, describe:</label><textarea rows="5" cols="40" name="vision_other" id="vision_other"></textarea></li>
+                            <li><label for="vision_other">If Other, describe:</label><textarea rows="5" cols="40" name="vision_other" id="vision_other" title="Vision (other)"></textarea></li>
                         </ul>
-                    </div>
-                    <div id="experiments" class="section">
-                        <h3>Experiments</h3>
+                    </fieldset>
+                    <fieldset id="experiments">
+                        <legend>Experiments</legend>
                         <ul>
-                            <li>Willing to partcipate in more experiments?:<input type="checkbox" name="more_expts" id="more_expts"/></li>
+                            <li>Willing to partcipate in more experiments?:<input type="checkbox" name="more_expts" id="more_expts" title="Willing to participate in more experiments"/></li>
                         </ul>
-                    </div>
+                    </fieldset>
                     <button type="submit" name="submit" id="submit">Submit</button>
+                    <div id="#response"></div>
                 </form>
-            </div>
-        </div>
-    </body>
-
-</html>
+{% endblock %}
