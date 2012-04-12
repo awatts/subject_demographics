@@ -1,4 +1,3 @@
-$(document).ready(function(){
- $("#subjets").tablesorter({widgets: ['zebra']});
- }
-);
+$(document).ready(function() {
+    $("#subjects").tablesorter({widgets: ['zebra']});
+});

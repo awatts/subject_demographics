@@ -12,8 +12,12 @@
 # compiled Python files
 *.py[co]
 
-# SQLite databases
+# SQLite databases and SQL files
 *.sqlite
+*.sql
 
 # The real database info
 db.cfg
+
+# Minified JS files
+*.min.js

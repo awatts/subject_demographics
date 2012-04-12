@@ -23,6 +23,7 @@ from webob.exc import HTTPBadRequest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 from jinja2 import Environment, FileSystemLoader
 from subject_models import Subject, Phone, Email
 from ConfigParser import SafeConfigParser
@@ -80,8 +81,12 @@ class NewSubjectController(object):
                 to_add['entrydate'] = date.today()
 
             subj.from_dict(to_add)
-            session.add(subj)
-            session.commit()
+            try:
+                session.add(subj)
+                session.commit()
+            except IntegrityError as e:
+                resp = HTTPBadRequest(e)
+                return resp(environ, start_response)
 
             if req.POST.has_key('phone'):
                 if req.POST['phone'] not in (None, '', u''):
@@ -122,15 +127,24 @@ class SubjectListController(object):
 
         req = Request(environ)
 
-        # TODO: have a GET parameter to restrict what rows to fetch
-        # and use session.query(Subject).filter_by if that param exists
+        # TODO: Add more possible filters. Do something w/ tuple below
+        filterkeys = ('stardate', 'enddate', 'age', 'sex')
 
-        subs = session.query(Subject).order_by(Subject.lastname).all()
+        subs = session.query(Subject)
+        if req.params.has_key('startdate') and req.params.has_key('enddate'):
+            subs = subs.filter(Subject.entrydate < req.params['enddate'], Subject.entrydate > req.params['startdate'])
+        elif req.params.has_key('startdate'):
+            subs = subs.filter(Subject.entrydate > req.params['startdate'])
+        elif req.params.has_key('enddate'):
+            subs = subs.filter(Subject.entrydate < req.params['enddate'])
+
+        subs = subs.order_by(Subject.lastname).all()
+        count = len(subs)
         subjects = [s.to_dict(deep={'phone': {}, 'email': {}}) for s in subs]
 
         env = Environment(loader=FileSystemLoader(os.path.join(basepath,'templates')))
         template = env.get_template('subject_list.html')
-        template = template.render(subjects=subjects)
+        template = template.render(subjects=subjects, count = count)
 
         resp = Response()
         resp.content_type='text/html'
@@ -150,6 +164,8 @@ class SummaryController(object):
         session = Session()
 
         req = Request(environ)
+
+        #TODO: have GET parameters to restrict by entry year what rows to fetch
 
         summary = {}
         summary['full_count'] = session.query(Subject).filter(None).count()

@@ -9,6 +9,8 @@
         <script type="text/javascript" src="/media/js/subject_list.js"></script>
 {% endblock %}
 {% block content %}
+                <p>{{count}} records</p>
+                <a href="/add">Add another subject</a>
                 <table id="subjects" class="tablesorter">
                     <thead>
                         <tr>
@@ -21,8 +23,8 @@
                             <th>Sex</th>
                             <th>Ethnicity</th>
                             <th>American Indian</th>
-                            <th>Black/African American</th>
-                            <th>Hawaiian/Pacific Islander</th>
+                            <th>Black / African American</th>
+                            <th>Hawaiian / Pacific Islander</th>
                             <th>Asian</th>
                             <th>White</th>
                             <th>Unknown</th>
@@ -55,23 +57,22 @@
                             <td>{{s.age}}</td>
                             <td>{{s.sex}}</td>
                             <td>{{s.ethnicity}}</td>
-                            <td>{{s.amerind}}</td>
-                            <td>{{s.afram}}</td>
-                            <td>{{s.pacif}}</td>
-                            <td>{{s.asian}}</td>
-                            <td>{{s.white}}</td>
-                            <td>{{s.unknown}}</td>
-                            <td>{{s.other_race}}</td>
-                            <td>{{s.ur_student}}</td>
-                            <td>{{s.gradyear}}</td>
-                            <td>{{s.hearing_normal}}</td>
-                            <td>{{s.hearing_problems}}</td>
-                            <td>{{s.vision_normal}}</td>
-                            <td>{{s.vision_other}}</td>
-                            <td>{{s.more_expts}}</td>
+                            <td>{% if s.amerind %}X{% endif %}</td>
+                            <td>{% if s.afram %}X{% endif %}</td>
+                            <td>{% if s.pacif %}X{% endif %}</td>
+                            <td>{% if s.asian %}X{% endif %}</td>
+                            <td>{% if s.white %}X{% endif %}</td>
+                            <td>{% if s.unknown %}X{% endif %}</td>
+                            <td>{% if s.other_race is none %}{% else %}{{s.other_race}}{% endif %}</td>
+                            <td>{% if s.ur_student %}X{% endif %}</td>
+                            <td>{% if s.gradyear is none %}{% else %}{{s.gradyear}}{% endif %}</td>
+                            <td>{% if s.hearing_normal %}X{% endif %}</td>
+                            <td>{% if s.hearing_problems is none %}{% else %}{{s.hearing_problems}}{% endif %}</td>
+                            <td>{% if s.vision_normal %}X{% endif %}</td>
+                            <td>{% if s.vision_other is none%}{% else %}{{s.vision_other}}{% endif %}</td>
+                            <td>{% if s.more_expts %}X{% endif %}</td>
                         </tr>
                         {% endfor %} 
                     </tbody>
                 </table>
-                <a href="/add">Add another subject</a>
 {% endblock %}
